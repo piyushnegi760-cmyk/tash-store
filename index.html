@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#111111" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+
   <title>TASH — Shop Smart</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Arial, sans-serif;
     }
 
     body {
@@ -24,25 +27,24 @@
       border: none;
     }
 
-    /* HEADER */
     header {
       position: sticky;
       top: 0;
       z-index: 1000;
       background: #111;
       color: white;
-      box-shadow: 0 3px 15px rgba(0,0,0,.15);
     }
 
     .nav {
       max-width: 1200px;
       margin: auto;
-      height: 70px;
-      padding: 0 20px;
+      min-height: 70px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 20px;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
 
     .logo {
@@ -52,24 +54,22 @@
       color: #f5c542;
     }
 
-    .search-box {
+    .search {
       flex: 1;
       max-width: 550px;
-      position: relative;
     }
 
-    .search-box input {
+    .search input {
       width: 100%;
       padding: 13px 18px;
       border-radius: 30px;
       border: none;
       outline: none;
-      font-size: 15px;
     }
 
-    .nav-actions {
+    .actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .nav-btn {
@@ -77,38 +77,25 @@
       color: white;
       padding: 11px 14px;
       border-radius: 10px;
-      font-size: 14px;
     }
 
-    .nav-btn:hover {
-      background: #333;
-    }
-
-    .cart-count {
+    .count {
       background: #f5c542;
       color: #111;
       padding: 2px 7px;
       border-radius: 20px;
       font-weight: bold;
-      margin-left: 3px;
     }
 
-    /* HERO */
     .hero {
-      min-height: 450px;
-      background:
-        radial-gradient(circle at 80% 20%, rgba(245,197,66,.25), transparent 35%),
-        linear-gradient(135deg, #111, #242424);
+      background: linear-gradient(135deg, #111, #292929);
       color: white;
-      display: flex;
-      align-items: center;
     }
 
-    .hero-content {
+    .hero-inner {
       max-width: 1200px;
-      width: 100%;
       margin: auto;
-      padding: 70px 20px;
+      padding: 80px 20px;
       display: grid;
       grid-template-columns: 1.2fr .8fr;
       align-items: center;
@@ -116,9 +103,8 @@
     }
 
     .hero h1 {
-      font-size: clamp(42px, 7vw, 75px);
+      font-size: clamp(45px, 7vw, 75px);
       line-height: .95;
-      margin-bottom: 25px;
     }
 
     .hero h1 span {
@@ -127,60 +113,50 @@
 
     .hero p {
       color: #ccc;
+      max-width: 550px;
+      margin: 25px 0;
       font-size: 18px;
       line-height: 1.6;
-      max-width: 550px;
-      margin-bottom: 30px;
     }
 
     .shop-btn {
       background: #f5c542;
-      color: #111;
       padding: 15px 25px;
       border-radius: 30px;
       font-weight: bold;
-      font-size: 16px;
-    }
-
-    .shop-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(245,197,66,.2);
     }
 
     .hero-card {
       height: 300px;
       border-radius: 30px;
-      background: linear-gradient(145deg,#2d2d2d,#111);
+      background: linear-gradient(145deg,#333,#111);
       display: flex;
-      align-items: center;
       justify-content: center;
-      box-shadow: 0 25px 50px rgba(0,0,0,.4);
+      align-items: center;
       border: 1px solid #444;
-      transform: rotate(2deg);
     }
 
-    .hero-card div {
-      font-size: 80px;
-      font-weight: 900;
+    .hero-card span {
       color: #f5c542;
-      letter-spacing: 10px;
+      font-size: 75px;
+      font-weight: 900;
+      letter-spacing: 8px;
     }
 
-    /* CATEGORY */
     .section {
       max-width: 1200px;
       margin: auto;
-      padding: 60px 20px;
+      padding: 55px 20px;
     }
 
-    .section-title {
+    .title {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 25px;
     }
 
-    .section-title h2 {
+    .title h2 {
       font-size: 30px;
     }
 
@@ -188,16 +164,15 @@
       display: flex;
       gap: 15px;
       overflow-x: auto;
-      padding-bottom: 10px;
     }
 
     .category {
       min-width: 130px;
       background: white;
-      padding: 18px;
-      border-radius: 18px;
+      padding: 20px;
       text-align: center;
-      box-shadow: 0 5px 20px rgba(0,0,0,.06);
+      border-radius: 18px;
+      box-shadow: 0 5px 20px #0000000d;
       transition: .2s;
     }
 
@@ -210,10 +185,9 @@
       margin-bottom: 8px;
     }
 
-    /* PRODUCTS */
     .products {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4,1fr);
       gap: 20px;
     }
 
@@ -221,20 +195,17 @@
       background: white;
       border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 5px 20px rgba(0,0,0,.07);
-      transition: .25s;
-      position: relative;
+      box-shadow: 0 5px 20px #0000000d;
+      transition: .2s;
     }
 
     .product:hover {
-      transform: translateY(-7px);
-      box-shadow: 0 15px 30px rgba(0,0,0,.12);
+      transform: translateY(-5px);
     }
 
     .product-image {
       height: 220px;
       background: #eee;
-      overflow: hidden;
       position: relative;
     }
 
@@ -242,10 +213,9 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
-    .wishlist {
+    .heart {
       position: absolute;
       top: 12px;
       right: 12px;
@@ -256,26 +226,24 @@
       font-size: 18px;
     }
 
-    .product-info {
+    .info {
       padding: 17px;
     }
 
-    .product-category {
-      color: #777;
+    .category-name {
       font-size: 12px;
+      color: #777;
       text-transform: uppercase;
       margin-bottom: 7px;
     }
 
-    .product-name {
-      font-size: 17px;
+    .name {
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .rating {
       color: #f5a400;
-      font-size: 13px;
       margin-bottom: 10px;
     }
 
@@ -286,30 +254,28 @@
     }
 
     .price {
-      font-size: 21px;
+      font-size: 20px;
       font-weight: bold;
     }
 
-    .old-price {
-      font-size: 13px;
+    .old {
       color: #999;
+      font-size: 12px;
       text-decoration: line-through;
-      margin-left: 5px;
     }
 
-    .add-btn {
+    .add {
       background: #111;
       color: white;
-      padding: 10px 14px;
-      border-radius: 10px;
+      padding: 10px 13px;
+      border-radius: 9px;
     }
 
-    .add-btn:hover {
+    .add:hover {
       background: #f5c542;
       color: #111;
     }
 
-    /* FEATURES */
     .features {
       display: grid;
       grid-template-columns: repeat(4,1fr);
@@ -319,110 +285,49 @@
     .feature {
       background: white;
       padding: 25px;
-      border-radius: 18px;
       text-align: center;
+      border-radius: 18px;
     }
 
     .feature-icon {
       font-size: 35px;
-      margin-bottom: 12px;
-    }
-
-    .feature h3 {
-      margin-bottom: 7px;
+      margin-bottom: 10px;
     }
 
     .feature p {
       color: #777;
       font-size: 14px;
-      line-height: 1.5;
+      margin-top: 8px;
     }
 
-    /* NEWSLETTER */
-    .newsletter {
-      background: #111;
-      color: white;
-      border-radius: 25px;
-      padding: 50px 25px;
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .newsletter h2 {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-
-    .newsletter p {
-      color: #bbb;
-      margin-bottom: 25px;
-    }
-
-    .newsletter-form {
-      display: flex;
-      max-width: 500px;
-      margin: auto;
-      gap: 10px;
-    }
-
-    .newsletter-form input {
-      flex: 1;
-      padding: 14px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-    }
-
-    .newsletter-form button {
-      background: #f5c542;
-      padding: 14px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-
-    /* FOOTER */
     footer {
       background: #111;
       color: white;
-      margin-top: 60px;
       padding: 50px 20px 25px;
     }
 
-    .footer-grid {
+    .footer {
       max-width: 1200px;
       margin: auto;
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr;
       gap: 30px;
     }
 
-    footer h3 {
-      margin-bottom: 15px;
-    }
-
-    footer p,
-    footer li {
+    footer p {
       color: #aaa;
-      line-height: 1.8;
-      list-style: none;
-    }
-
-    footer ul li {
-      cursor: pointer;
+      line-height: 1.7;
     }
 
     .copyright {
-      max-width: 1200px;
-      margin: 40px auto 0;
-      padding-top: 20px;
-      border-top: 1px solid #333;
-      color: #777;
       text-align: center;
-      font-size: 13px;
+      color: #777;
+      margin-top: 35px;
+      border-top: 1px solid #333;
+      padding-top: 20px;
     }
 
-    /* CART */
-    .cart-panel {
+    .cart {
       position: fixed;
       right: -420px;
       top: 0;
@@ -431,26 +336,24 @@
       height: 100vh;
       background: white;
       z-index: 2000;
-      box-shadow: -10px 0 40px rgba(0,0,0,.2);
+      box-shadow: -10px 0 40px #0003;
       transition: .3s;
       display: flex;
       flex-direction: column;
     }
 
-    .cart-panel.open {
+    .cart.open {
       right: 0;
     }
 
-    .cart-header {
+    .cart-head {
       padding: 20px;
       border-bottom: 1px solid #ddd;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
 
-    .close-cart {
-      background: #eee;
+    .close {
       width: 35px;
       height: 35px;
       border-radius: 50%;
@@ -467,7 +370,7 @@
       gap: 12px;
       margin-bottom: 18px;
       border-bottom: 1px solid #eee;
-      padding-bottom: 18px;
+      padding-bottom: 15px;
     }
 
     .cart-item img {
@@ -477,17 +380,12 @@
       border-radius: 10px;
     }
 
-    .cart-item-info {
+    .cart-info {
       flex: 1;
     }
 
-    .cart-item-name {
-      font-weight: bold;
-      margin-bottom: 7px;
-    }
-
-    .remove-item {
-      color: #d00;
+    .remove {
+      color: red;
       background: none;
       margin-top: 5px;
     }
@@ -505,36 +403,23 @@
       margin-bottom: 15px;
     }
 
-    .checkout-btn {
+    .checkout {
       width: 100%;
+      padding: 15px;
       background: #111;
       color: white;
-      padding: 15px;
       border-radius: 10px;
-      font-size: 16px;
       font-weight: bold;
     }
 
-    .checkout-btn:hover {
-      background: #f5c542;
-      color: #111;
-    }
-
-    .empty-cart {
-      text-align: center;
-      color: #777;
-      margin-top: 60px;
-    }
-
-    /* MODAL */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.65);
+      background: #000a;
       z-index: 3000;
       display: none;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       padding: 20px;
     }
 
@@ -542,45 +427,32 @@
       display: flex;
     }
 
-    .modal-content {
+    .modal-box {
       background: white;
       width: 500px;
       max-width: 100%;
       border-radius: 20px;
       padding: 25px;
       position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
     }
 
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: #eee;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-    }
-
-    .modal-content h2 {
+    .modal-box h2 {
       margin-bottom: 20px;
     }
 
-    .form-group {
+    .form {
       margin-bottom: 15px;
     }
 
-    .form-group label {
+    .form label {
       display: block;
-      margin-bottom: 6px;
       font-weight: bold;
-      font-size: 14px;
+      margin-bottom: 6px;
     }
 
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
+    .form input,
+    .form textarea,
+    .form select {
       width: 100%;
       padding: 12px;
       border: 1px solid #ddd;
@@ -588,23 +460,26 @@
       outline: none;
     }
 
-    .form-group textarea {
-      min-height: 80px;
-      resize: vertical;
+    .form textarea {
+      min-height: 90px;
     }
 
-    .place-order {
+    .place {
       width: 100%;
       padding: 14px;
       background: #f5c542;
-      color: #111;
       border-radius: 10px;
       font-weight: bold;
-      font-size: 16px;
     }
 
-    /* MOBILE */
-    @media (max-width: 900px) {
+    .loading {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px;
+      font-size: 18px;
+    }
+
+    @media(max-width:900px) {
       .products {
         grid-template-columns: repeat(2,1fr);
       }
@@ -613,54 +488,17 @@
         grid-template-columns: repeat(2,1fr);
       }
 
-      .hero-content {
+      .hero-inner {
         grid-template-columns: 1fr;
       }
 
       .hero-card {
         display: none;
       }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-      }
     }
 
-    @media (max-width: 600px) {
-      .nav {
-        height: auto;
-        padding: 12px;
-        flex-wrap: wrap;
-      }
-
-      .logo {
-        font-size: 25px;
-      }
-
-      .search-box {
-        order: 3;
-        flex-basis: 100%;
-        max-width: none;
-      }
-
-      .nav-btn {
-        padding: 9px;
-      }
-
-      .hero {
-        min-height: 400px;
-      }
-
-      .hero-content {
-        padding: 50px 20px;
-      }
-
-      .hero h1 {
-        font-size: 48px;
-      }
-
+    @media(max-width:600px) {
       .products {
-        grid-template-columns: repeat(2,1fr);
         gap: 12px;
       }
 
@@ -668,11 +506,11 @@
         height: 170px;
       }
 
-      .product-info {
+      .info {
         padding: 12px;
       }
 
-      .product-name {
+      .name {
         font-size: 14px;
       }
 
@@ -680,8 +518,8 @@
         font-size: 17px;
       }
 
-      .add-btn {
-        padding: 8px 10px;
+      .add {
+        padding: 8px;
         font-size: 12px;
       }
 
@@ -689,12 +527,17 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      .newsletter-form {
-        flex-direction: column;
+      .footer {
+        grid-template-columns: 1fr;
       }
 
-      .footer-grid {
-        grid-template-columns: 1fr;
+      .nav {
+        padding: 12px;
+      }
+
+      .search {
+        order: 3;
+        flex-basis: 100%;
       }
     }
   </style>
@@ -702,502 +545,450 @@
 
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="nav">
+<header>
+  <div class="nav">
 
-      <div class="logo">TASH</div>
+    <div class="logo">TASH</div>
 
-      <div class="search-box">
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Search products..."
-          oninput="searchProducts()"
-        />
-      </div>
-
-      <div class="nav-actions">
-        <button class="nav-btn" onclick="openAccount()">👤 Account</button>
-
-        <button class="nav-btn" onclick="openCart()">
-          🛒 Cart
-          <span class="cart-count" id="cartCount">0</span>
-        </button>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- HERO -->
-  <section class="hero">
-
-    <div class="hero-content">
-
-      <div>
-        <h1>
-          SHOP<br>
-          <span>SMART.</span><br>
-          SHOP TASH.
-        </h1>
-
-        <p>
-          Discover affordable products, great deals and everyday essentials
-          — all in one place.
-        </p>
-
-        <button class="shop-btn" onclick="scrollToProducts()">
-          Shop Now →
-        </button>
-      </div>
-
-      <div class="hero-card">
-        <div>TASH</div>
-      </div>
-
+    <div class="search">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search products..."
+        oninput="searchProducts()"
+      >
     </div>
 
-  </section>
+    <div class="actions">
+      <button class="nav-btn" onclick="openAccount()">👤</button>
 
-  <!-- CATEGORIES -->
-  <section class="section">
-
-    <div class="section-title">
-      <h2>Categories</h2>
+      <button class="nav-btn" onclick="openCart()">
+        🛒 <span class="count" id="cartCount">0</span>
+      </button>
     </div>
 
-    <div class="categories">
+  </div>
+</header>
 
-      <div class="category" onclick="filterCategory('Fashion')">
-        <div class="category-icon">👕</div>
-        <b>Fashion</b>
-      </div>
+<section class="hero">
 
-      <div class="category" onclick="filterCategory('Electronics')">
-        <div class="category-icon">📱</div>
-        <b>Electronics</b>
-      </div>
+  <div class="hero-inner">
 
-      <div class="category" onclick="filterCategory('Home')">
-        <div class="category-icon">🏠</div>
-        <b>Home</b>
-      </div>
-
-      <div class="category" onclick="filterCategory('Beauty')">
-        <div class="category-icon">✨</div>
-        <b>Beauty</b>
-      </div>
-
-      <div class="category" onclick="filterCategory('Accessories')">
-        <div class="category-icon">🎒</div>
-        <b>Accessories</b>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- PRODUCTS -->
-  <section class="section" id="productsSection">
-
-    <div class="section-title">
-      <h2>Popular Products</h2>
-      <button onclick="showAllProducts()">View All →</button>
-    </div>
-
-    <div class="products" id="products"></div>
-
-  </section>
-
-  <!-- FEATURES -->
-  <section class="section">
-
-    <div class="features">
-
-      <div class="feature">
-        <div class="feature-icon">🚚</div>
-        <h3>Fast Delivery</h3>
-        <p>Get your products delivered safely to your doorstep.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">💰</div>
-        <h3>Great Prices</h3>
-        <p>Affordable products for everyday shopping.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">🔒</div>
-        <h3>Secure Payment</h3>
-        <p>Your payment information stays protected.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">↩️</div>
-        <h3>Easy Returns</h3>
-        <p>Simple return process for eligible products.</p>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- NEWSLETTER -->
-  <section class="section">
-
-    <div class="newsletter">
-
-      <h2>Get TASH Deals</h2>
+    <div>
+      <h1>
+        SHOP<br>
+        <span>SMART.</span><br>
+        SHOP TASH.
+      </h1>
 
       <p>
-        Subscribe to receive new product and offer updates.
+        Discover affordable products and everyday essentials
+        — all in one place.
       </p>
 
-      <div class="newsletter-form">
-        <input
-          type="email"
-          id="emailInput"
-          placeholder="Enter your email"
-        />
-
-        <button onclick="subscribeEmail()">
-          Subscribe
-        </button>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-
-    <div class="footer-grid">
-
-      <div>
-        <h3>TASH</h3>
-        <p>
-          Your simple destination for affordable and useful products.
-        </p>
-      </div>
-
-      <div>
-        <h3>Shop</h3>
-        <ul>
-          <li onclick="showAllProducts()">All Products</li>
-          <li onclick="filterCategory('Fashion')">Fashion</li>
-          <li onclick="filterCategory('Electronics')">Electronics</li>
-          <li onclick="filterCategory('Home')">Home</li>
-        </ul>
-      </div>
-
-      <div>
-        <h3>Help</h3>
-        <ul>
-          <li onclick="openAccount()">My Account</li>
-          <li onclick="openCart()">My Cart</li>
-          <li onclick="openContact()">Contact</li>
-        </ul>
-      </div>
-
-      <div>
-        <h3>Follow</h3>
-        <p>Instagram</p>
-        <p>Facebook</p>
-        <p>YouTube</p>
-      </div>
-
-    </div>
-
-    <div class="copyright">
-      © 2026 TASH. All rights reserved.
-    </div>
-
-  </footer>
-
-  <!-- CART -->
-  <div class="cart-panel" id="cartPanel">
-
-    <div class="cart-header">
-      <h2>Your Cart</h2>
-
-      <button
-        class="close-cart"
-        onclick="closeCart()"
-      >
-        ✕
+      <button class="shop-btn" onclick="goProducts()">
+        Shop Now →
       </button>
     </div>
 
-    <div class="cart-items" id="cartItems"></div>
-
-    <div class="cart-footer">
-
-      <div class="total">
-        <span>Total</span>
-        <span id="cartTotal">₹0</span>
-      </div>
-
-      <button
-        class="checkout-btn"
-        onclick="openCheckout()"
-      >
-        Proceed to Checkout
-      </button>
-
+    <div class="hero-card">
+      <span>TASH</span>
     </div>
 
   </div>
 
-  <!-- CHECKOUT MODAL -->
-  <div class="modal" id="checkoutModal">
+</section>
 
-    <div class="modal-content">
+<section class="section">
 
-      <button
-        class="modal-close"
-        onclick="closeCheckout()"
-      >
-        ✕
-      </button>
+  <div class="title">
+    <h2>Categories</h2>
+  </div>
 
-      <h2>Checkout</h2>
+  <div class="categories">
 
-      <div class="form-group">
-        <label>Full Name</label>
-        <input id="customerName" type="text" placeholder="Your name">
-      </div>
+    <div class="category" onclick="filterCategory('Fashion')">
+      <div class="category-icon">👕</div>
+      <b>Fashion</b>
+    </div>
 
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input id="customerPhone" type="tel" placeholder="10-digit mobile number">
-      </div>
+    <div class="category" onclick="filterCategory('Electronics')">
+      <div class="category-icon">📱</div>
+      <b>Electronics</b>
+    </div>
 
-      <div class="form-group">
-        <label>Address</label>
-        <textarea id="customerAddress" placeholder="Full delivery address"></textarea>
-      </div>
+    <div class="category" onclick="filterCategory('Home')">
+      <div class="category-icon">🏠</div>
+      <b>Home</b>
+    </div>
 
-      <div class="form-group">
-        <label>Payment Method</label>
+    <div class="category" onclick="filterCategory('Beauty')">
+      <div class="category-icon">✨</div>
+      <b>Beauty</b>
+    </div>
 
-        <select id="paymentMethod">
-          <option value="COD">Cash on Delivery</option>
-          <option value="ONLINE">Online Payment</option>
-        </select>
-      </div>
-
-      <button
-        class="place-order"
-        onclick="placeOrder()"
-      >
-        Place Order
-      </button>
-
+    <div class="category" onclick="filterCategory('Accessories')">
+      <div class="category-icon">🎒</div>
+      <b>Accessories</b>
     </div>
 
   </div>
 
-  <!-- ACCOUNT MODAL -->
-  <div class="modal" id="accountModal">
+</section>
 
-    <div class="modal-content">
+<section class="section" id="productsSection">
 
-      <button
-        class="modal-close"
-        onclick="closeAccount()"
-      >
-        ✕
-      </button>
+  <div class="title">
+    <h2>TASH Products</h2>
+    <button onclick="loadProducts()">View All →</button>
+  </div>
 
-      <h2>My Account</h2>
+  <div class="products" id="products">
+    <div class="loading">
+      Loading TASH products...
+    </div>
+  </div>
 
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="tel" placeholder="Enter mobile number">
-      </div>
+</section>
 
-      <button
-        class="place-order"
-        onclick="alert('Login system will be connected with Supabase later.')"
-      >
-        Continue
-      </button>
+<section class="section">
 
+  <div class="features">
+
+    <div class="feature">
+      <div class="feature-icon">🚚</div>
+      <h3>Fast Delivery</h3>
+      <p>Safe delivery to your doorstep.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">💰</div>
+      <h3>Great Prices</h3>
+      <p>Affordable products for everyone.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">🔒</div>
+      <h3>Secure</h3>
+      <p>Safe and secure shopping.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">↩️</div>
+      <h3>Easy Returns</h3>
+      <p>Simple return process.</p>
     </div>
 
   </div>
 
-  <script>
+</section>
 
-    /* =========================
-       TASH PRODUCTS
-    ========================= */
+<footer>
 
-    const products = [
+  <div class="footer">
 
-      {
-        id: 1,
-        name: "Premium Wireless Earbuds",
-        category: "Electronics",
-        price: 799,
-        oldPrice: 1499,
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=800&q=80"
-      },
+    <div>
+      <h2>TASH</h2>
+      <p>
+        Shop smart. Shop affordable.
+      </p>
+    </div>
 
-      {
-        id: 2,
-        name: "Classic Oversized T-Shirt",
-        category: "Fashion",
-        price: 499,
-        oldPrice: 899,
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80"
-      },
+    <div>
+      <h3>Shop</h3>
+      <p>All Products</p>
+      <p>Fashion</p>
+      <p>Electronics</p>
+      <p>Home</p>
+    </div>
 
-      {
-        id: 3,
-        name: "Minimal Desk Lamp",
-        category: "Home",
-        price: 599,
-        oldPrice: 999,
-        rating: 4.4,
-        image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"
-      },
+    <div>
+      <h3>Support</h3>
+      <p onclick="openAccount()">My Account</p>
+      <p onclick="openCart()">My Cart</p>
+    </div>
 
-      {
-        id: 4,
-        name: "Smart Fitness Watch",
-        category: "Electronics",
-        price: 1299,
-        oldPrice: 2499,
-        rating: 4.3,
-        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"
-      },
+  </div>
 
-      {
-        id: 5,
-        name: "Everyday Backpack",
-        category: "Accessories",
-        price: 699,
-        oldPrice: 1199,
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80"
-      },
+  <div class="copyright">
+    © 2026 TASH. All rights reserved.
+  </div>
 
-      {
-        id: 6,
-        name: "Skin Care Essentials",
-        category: "Beauty",
-        price: 899,
-        oldPrice: 1399,
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=800&q=80"
-      },
-
-      {
-        id: 7,
-        name: "Portable Bluetooth Speaker",
-        category: "Electronics",
-        price: 999,
-        oldPrice: 1799,
-        rating: 4.4,
-        image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=800&q=80"
-      },
-
-      {
-        id: 8,
-        name: "Modern Water Bottle",
-        category: "Home",
-        price: 399,
-        oldPrice: 699,
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=800&q=80"
-      }
-
-    ];
-
-    let cart = JSON.parse(localStorage.getItem("tashCart")) || [];
-
-    let currentProducts = [...products];
+</footer>
 
 
-    /* =========================
-       DISPLAY PRODUCTS
-    ========================= */
+<!-- CART -->
 
-    function displayProducts(list) {
+<div class="cart" id="cart">
 
-      const container = document.getElementById("products");
+  <div class="cart-head">
+    <h2>Your Cart</h2>
+    <button class="close" onclick="closeCart()">✕</button>
+  </div>
 
-      if (list.length === 0) {
+  <div class="cart-items" id="cartItems"></div>
 
-        container.innerHTML = `
-          <div style="
-            grid-column:1/-1;
-            text-align:center;
-            padding:50px;
-          ">
-            <h3>No products found</h3>
-            <p style="color:#777;margin-top:10px;">
-              Try another search.
-            </p>
-          </div>
-        `;
+  <div class="cart-footer">
 
-        return;
-      }
+    <div class="total">
+      <span>Total</span>
+      <span id="total">₹0</span>
+    </div>
 
-      container.innerHTML = list.map(product => `
+    <button class="checkout" onclick="openCheckout()">
+      Proceed to Checkout
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- CHECKOUT -->
+
+<div class="modal" id="checkoutModal">
+
+  <div class="modal-box">
+
+    <button
+      class="close"
+      style="position:absolute;right:15px;top:15px"
+      onclick="closeCheckout()"
+    >
+      ✕
+    </button>
+
+    <h2>Checkout</h2>
+
+    <div class="form">
+      <label>Full Name</label>
+      <input id="customerName" type="text">
+    </div>
+
+    <div class="form">
+      <label>Mobile Number</label>
+      <input id="customerPhone" type="tel">
+    </div>
+
+    <div class="form">
+      <label>Address</label>
+      <textarea id="customerAddress"></textarea>
+    </div>
+
+    <div class="form">
+      <label>Payment Method</label>
+
+      <select id="paymentMethod">
+        <option value="COD">Cash on Delivery</option>
+        <option value="ONLINE">Online Payment</option>
+      </select>
+    </div>
+
+    <button class="place" onclick="placeOrder()">
+      Place Order
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ACCOUNT -->
+
+<div class="modal" id="accountModal">
+
+  <div class="modal-box">
+
+    <button
+      class="close"
+      style="position:absolute;right:15px;top:15px"
+      onclick="closeAccount()"
+    >
+      ✕
+    </button>
+
+    <h2>My Account</h2>
+
+    <p style="color:#777;margin-bottom:20px">
+      Account system will be connected in the next version.
+    </p>
+
+    <button class="place" onclick="closeAccount()">
+      Continue
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  /* =================================
+     SUPABASE CONNECTION
+  ================================= */
+
+  const SUPABASE_URL =
+    "https://bnsibuxmngwqcnlegle.supabase.co";
+
+  /*
+    IMPORTANT:
+    Replace ONLY the value below with
+    your copied Publishable Key.
+  */
+
+  const SUPABASE_KEY =
+    "sb_publishable_TfgxY8ZRCIELnUx7lfX4_g_Kwk1AmGy";
+
+
+  const { createClient } = supabase;
+
+  const db = createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+  /* =================================
+     VARIABLES
+  ================================= */
+
+  let products = [];
+
+  let currentProducts = [];
+
+  let cart =
+    JSON.parse(localStorage.getItem("tashCart")) || [];
+
+
+  /* =================================
+     LOAD PRODUCTS FROM SUPABASE
+  ================================= */
+
+  async function loadProducts() {
+
+    const container =
+      document.getElementById("products");
+
+    container.innerHTML = `
+      <div class="loading">
+        Loading TASH products...
+      </div>
+    `;
+
+    const { data, error } =
+      await db
+        .from("products")
+        .select("*")
+        .order("id", { ascending: true });
+
+
+    if (error) {
+
+      console.error(error);
+
+      container.innerHTML = `
+        <div class="loading">
+          <h3>Unable to load products</h3>
+          <p style="color:#777;margin-top:10px">
+            Please check your Supabase connection.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+
+    products = data || [];
+
+    currentProducts = [...products];
+
+    displayProducts(currentProducts);
+
+  }
+
+
+  /* =================================
+     DISPLAY PRODUCTS
+  ================================= */
+
+  function displayProducts(list) {
+
+    const container =
+      document.getElementById("products");
+
+
+    if (!list.length) {
+
+      container.innerHTML = `
+        <div class="loading">
+          No products found.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    container.innerHTML =
+      list.map(product => `
 
         <div class="product">
 
           <div class="product-image">
 
             <img
-              src="${product.image}"
-              alt="${product.name}"
+              src="${product.image_url || 'https://via.placeholder.com/500x500?text=TASH'}"
+              alt="${escapeHTML(product.name)}"
               loading="lazy"
             >
 
             <button
-              class="wishlist"
-              onclick="addWishlist(${product.id})"
+              class="heart"
+              onclick="wishlist(${product.id})"
             >
               ♡
             </button>
 
           </div>
 
-          <div class="product-info">
+          <div class="info">
 
-            <div class="product-category">
-              ${product.category}
+            <div class="category-name">
+              ${escapeHTML(product.category || "Product")}
             </div>
 
-            <div class="product-name">
-              ${product.name}
+            <div class="name">
+              ${escapeHTML(product.name)}
             </div>
 
             <div class="rating">
-              ★ ${product.rating}
+              ★ ${product.rating || "0"}
             </div>
 
             <div class="price-row">
 
               <div>
+
                 <span class="price">
-                  ₹${product.price}
+                  ₹${Number(product.price).toLocaleString("en-IN")}
                 </span>
 
-                <span class="old-price">
-                  ₹${product.oldPrice}
-                </span>
+                ${
+                  product.old_price
+                  ? `
+                    <span class="old">
+                      ₹${Number(product.old_price).toLocaleString("en-IN")}
+                    </span>
+                  `
+                  : ""
+                }
+
               </div>
 
               <button
-                class="add-btn"
+                class="add"
                 onclick="addToCart(${product.id})"
               >
                 + Cart
@@ -1211,170 +1002,191 @@
 
       `).join("");
 
-    }
+  }
 
 
-    /* =========================
-       SEARCH
-    ========================= */
+  /* =================================
+     SEARCH
+  ================================= */
 
-    function searchProducts() {
+  function searchProducts() {
 
-      const query =
-        document.getElementById("searchInput")
+    const query =
+      document
+        .getElementById("search")
         .value
         .toLowerCase()
         .trim();
 
-      currentProducts = products.filter(product =>
 
-        product.name.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query)
+    currentProducts =
+      products.filter(product =>
+
+        (product.name || "")
+          .toLowerCase()
+          .includes(query)
+
+        ||
+
+        (product.category || "")
+          .toLowerCase()
+          .includes(query)
 
       );
 
-      displayProducts(currentProducts);
+
+    displayProducts(currentProducts);
+
+  }
+
+
+  /* =================================
+     CATEGORY
+  ================================= */
+
+  function filterCategory(category) {
+
+    currentProducts =
+      products.filter(
+        product =>
+          (product.category || "").toLowerCase()
+          === category.toLowerCase()
+      );
+
+
+    displayProducts(currentProducts);
+
+    document
+      .getElementById("productsSection")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
+
+  }
+
+
+  /* =================================
+     CART
+  ================================= */
+
+  function addToCart(id) {
+
+    const product =
+      products.find(p => p.id === id);
+
+
+    if (!product) return;
+
+
+    const existing =
+      cart.find(item => item.id === id);
+
+
+    if (existing) {
+
+      existing.quantity++;
+
+    } else {
+
+      cart.push({
+        ...product,
+        quantity: 1
+      });
 
     }
 
 
-    /* =========================
-       CATEGORY
-    ========================= */
+    saveCart();
 
-    function filterCategory(category) {
+    updateCart();
 
-      currentProducts = products.filter(
-        product => product.category === category
+    alert(
+      product.name +
+      " added to cart!"
+    );
+
+  }
+
+
+  function removeFromCart(id) {
+
+    cart =
+      cart.filter(item => item.id !== id);
+
+    saveCart();
+
+    updateCart();
+
+  }
+
+
+  function saveCart() {
+
+    localStorage.setItem(
+      "tashCart",
+      JSON.stringify(cart)
+    );
+
+  }
+
+
+  function updateCart() {
+
+    const count =
+      cart.reduce(
+        (sum, item) =>
+          sum + item.quantity,
+        0
       );
 
-      displayProducts(currentProducts);
 
-      document.getElementById("productsSection")
-        .scrollIntoView({ behavior: "smooth" });
-
-    }
+    document
+      .getElementById("cartCount")
+      .textContent = count;
 
 
-    function showAllProducts() {
-
-      currentProducts = [...products];
-
-      document.getElementById("searchInput").value = "";
-
-      displayProducts(currentProducts);
-
-      document.getElementById("productsSection")
-        .scrollIntoView({ behavior: "smooth" });
-
-    }
+    const container =
+      document.getElementById("cartItems");
 
 
-    /* =========================
-       CART
-    ========================= */
+    if (!cart.length) {
 
-    function addToCart(id) {
+      container.innerHTML = `
+        <div style="
+          text-align:center;
+          margin-top:60px;
+          color:#777
+        ">
+          <div style="font-size:50px">🛒</div>
+          <h3>Your cart is empty</h3>
+        </div>
+      `;
 
-      const product = products.find(
-        product => product.id === id
-      );
+    } else {
 
-      const existing = cart.find(
-        item => item.id === id
-      );
-
-      if (existing) {
-        existing.quantity++;
-      } else {
-
-        cart.push({
-          ...product,
-          quantity: 1
-        });
-
-      }
-
-      saveCart();
-
-      updateCart();
-
-      alert(product.name + " added to cart!");
-
-    }
-
-
-    function removeFromCart(id) {
-
-      cart = cart.filter(
-        item => item.id !== id
-      );
-
-      saveCart();
-
-      updateCart();
-
-    }
-
-
-    function saveCart() {
-
-      localStorage.setItem(
-        "tashCart",
-        JSON.stringify(cart)
-      );
-
-    }
-
-
-    function updateCart() {
-
-      const cartCount =
-        cart.reduce(
-          (total, item) => total + item.quantity,
-          0
-        );
-
-      document.getElementById("cartCount")
-        .textContent = cartCount;
-
-
-      const cartItems =
-        document.getElementById("cartItems");
-
-      if (cart.length === 0) {
-
-        cartItems.innerHTML = `
-          <div class="empty-cart">
-            <div style="font-size:50px;">🛒</div>
-            <h3>Your cart is empty</h3>
-            <p>Add some products to continue.</p>
-          </div>
-        `;
-
-      } else {
-
-        cartItems.innerHTML = cart.map(item => `
+      container.innerHTML =
+        cart.map(item => `
 
           <div class="cart-item">
 
             <img
-              src="${item.image}"
-              alt="${item.name}"
+              src="${item.image_url}"
+              alt="${escapeHTML(item.name)}"
             >
 
-            <div class="cart-item-info">
+            <div class="cart-info">
 
-              <div class="cart-item-name">
-                ${item.name}
-              </div>
+              <b>
+                ${escapeHTML(item.name)}
+              </b>
 
-              <div>
-                ₹${item.price} × ${item.quantity}
+              <div style="margin-top:7px">
+                ₹${Number(item.price).toLocaleString("en-IN")}
+                × ${item.quantity}
               </div>
 
               <button
-                class="remove-item"
+                class="remove"
                 onclick="removeFromCart(${item.id})"
               >
                 Remove
@@ -1386,163 +1198,200 @@
 
         `).join("");
 
-      }
-
-
-      const total =
-        cart.reduce(
-          (sum, item) =>
-            sum + item.price * item.quantity,
-          0
-        );
-
-      document.getElementById("cartTotal")
-        .textContent = "₹" + total;
-
     }
 
 
-    function openCart() {
-
-      document.getElementById("cartPanel")
-        .classList.add("open");
-
-    }
-
-
-    function closeCart() {
-
-      document.getElementById("cartPanel")
-        .classList.remove("open");
-
-    }
-
-
-    /* =========================
-       CHECKOUT
-    ========================= */
-
-    function openCheckout() {
-
-      if (cart.length === 0) {
-
-        alert("Your cart is empty.");
-
-        return;
-
-      }
-
-      document.getElementById("checkoutModal")
-        .classList.add("show");
-
-    }
-
-
-    function closeCheckout() {
-
-      document.getElementById("checkoutModal")
-        .classList.remove("show");
-
-    }
-
-
-    function placeOrder() {
-
-      const name =
-        document.getElementById("customerName").value.trim();
-
-      const phone =
-        document.getElementById("customerPhone").value.trim();
-
-      const address =
-        document.getElementById("customerAddress").value.trim();
-
-      const payment =
-        document.getElementById("paymentMethod").value;
-
-
-      if (!name || !phone || !address) {
-
-        alert("Please fill all required details.");
-
-        return;
-
-      }
-
-
-      if (phone.length !== 10) {
-
-        alert("Please enter a valid 10-digit mobile number.");
-
-        return;
-
-      }
-
-
-      const orderId =
-        "TASH" +
-        Date.now().toString().slice(-8);
-
-
-      const total =
-        cart.reduce(
-          (sum, item) =>
-            sum + item.price * item.quantity,
-          0
-        );
-
-
-      alert(
-        "Order placed successfully!\n\n" +
-        "Order ID: " + orderId +
-        "\nTotal: ₹" + total +
-        "\nPayment: " + payment
+    const total =
+      cart.reduce(
+        (sum, item) =>
+          sum + Number(item.price) * item.quantity,
+        0
       );
 
 
-      cart = [];
+    document
+      .getElementById("total")
+      .textContent =
+      "₹" + total.toLocaleString("en-IN");
 
-      saveCart();
+  }
 
-      updateCart();
 
-      closeCheckout();
+  function openCart() {
 
-      closeCart();
+    document
+      .getElementById("cart")
+      .classList.add("open");
 
+  }
+
+
+  function closeCart() {
+
+    document
+      .getElementById("cart")
+      .classList.remove("open");
+
+  }
+
+
+  /* =================================
+     CHECKOUT
+  ================================= */
+
+  function openCheckout() {
+
+    if (!cart.length) {
+
+      alert("Your cart is empty.");
+
+      return;
+    }
+
+    document
+      .getElementById("checkoutModal")
+      .classList.add("show");
+
+  }
+
+
+  function closeCheckout() {
+
+    document
+      .getElementById("checkoutModal")
+      .classList.remove("show");
+
+  }
+
+
+  /*
+    REAL ORDER INSERT WILL BE CONNECTED
+    AFTER WE CREATE THE ORDER SECURITY
+    POLICIES.
+  */
+
+  async function placeOrder() {
+
+    const name =
+      document
+        .getElementById("customerName")
+        .value.trim();
+
+
+    const phone =
+      document
+        .getElementById("customerPhone")
+        .value.trim();
+
+
+    const address =
+      document
+        .getElementById("customerAddress")
+        .value.trim();
+
+
+    const payment =
+      document
+        .getElementById("paymentMethod")
+        .value;
+
+
+    if (!name || !phone || !address) {
+
+      alert(
+        "Please fill all details."
+      );
+
+      return;
     }
 
 
-    /* =========================
-       ACCOUNT
-    ========================= */
+    if (!/^[0-9]{10}$/.test(phone)) {
 
-    function openAccount() {
+      alert(
+        "Enter a valid 10-digit mobile number."
+      );
 
-      document.getElementById("accountModal")
-        .classList.add("show");
-
+      return;
     }
 
 
-    function closeAccount() {
+    /*
+      For now we show confirmation.
+      Database order insertion will be
+      enabled after secure policies.
+    */
 
-      document.getElementById("accountModal")
-        .classList.remove("show");
+    const total =
+      cart.reduce(
+        (sum, item) =>
+          sum + Number(item.price) * item.quantity,
+        0
+      );
 
-    }
+
+    const orderId =
+      "TASH" +
+      Date.now()
+        .toString()
+        .slice(-8);
 
 
-    /* =========================
-       WISHLIST
-    ========================= */
+    alert(
+      "Order details received!\n\n" +
+      "Order ID: " + orderId +
+      "\nTotal: ₹" +
+      total.toLocaleString("en-IN") +
+      "\nPayment: " +
+      payment
+    );
 
-    function addWishlist(id) {
 
-      const product =
-        products.find(
-          product => product.id === id
-        );
+    cart = [];
+
+    saveCart();
+
+    updateCart();
+
+    closeCheckout();
+
+    closeCart();
+
+  }
+
+
+  /* =================================
+     ACCOUNT
+  ================================= */
+
+  function openAccount() {
+
+    document
+      .getElementById("accountModal")
+      .classList.add("show");
+
+  }
+
+
+  function closeAccount() {
+
+    document
+      .getElementById("accountModal")
+      .classList.remove("show");
+
+  }
+
+
+  /* =================================
+     WISHLIST
+  ================================= */
+
+  function wishlist(id) {
+
+    const product =
+      products.find(p => p.id === id);
+
+    if (product) {
 
       alert(
         product.name +
@@ -1551,72 +1400,49 @@
 
     }
 
-
-    /* =========================
-       CONTACT
-    ========================= */
-
-    function openContact() {
-
-      alert(
-        "TASH Customer Support\n\n" +
-        "Email: support@tash.store"
-      );
-
-    }
+  }
 
 
-    /* =========================
-       NEWSLETTER
-    ========================= */
+  /* =================================
+     SCROLL
+  ================================= */
 
-    function subscribeEmail() {
+  function goProducts() {
 
-      const email =
-        document.getElementById("emailInput")
-        .value.trim();
+    document
+      .getElementById("productsSection")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
 
-      if (!email) {
-
-        alert("Please enter your email.");
-
-        return;
-
-      }
-
-      alert(
-        "Thanks for subscribing to TASH!"
-      );
-
-      document.getElementById("emailInput")
-        .value = "";
-
-    }
+  }
 
 
-    /* =========================
-       SCROLL
-    ========================= */
+  /* =================================
+     SECURITY / HTML ESCAPE
+  ================================= */
 
-    function scrollToProducts() {
+  function escapeHTML(value) {
 
-      document.getElementById("productsSection")
-        .scrollIntoView({
-          behavior: "smooth"
-        });
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
 
-    }
+  }
 
 
-    /* =========================
-       INITIALIZE
-    ========================= */
+  /* =================================
+     START TASH
+  ================================= */
 
-    displayProducts(products);
+  updateCart();
 
-    updateCart();
+  loadProducts();
 
-  </script>
+</script>
 
 </body>
 </html>
